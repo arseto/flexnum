@@ -2,16 +2,21 @@ package sequence
 
 import "github.com/arseto/flexnum/segments"
 
-type segmentFactory struct {
-	repo SequenceRepo
+type SegmentFactory interface {
+	NextSequenceSegment(sequenceID string, digits int, separator string) (
+		*segments.SequenceSegment, error)
 }
 
-func (sf *segmentFactory) MakeSegment(sequenceID string, digits int, separator string) (
+type segmentFactory struct {
+	sqr Sequencer
+}
+
+func (sf *segmentFactory) NextSequenceSegment(sequenceID string, digits int, separator string) (
 	seg *segments.SequenceSegment, err error) {
-	seq, err := sf.repo.Find(sequenceID)
+	seq, err := sf.sqr.Next(sequenceID)
 	if err != nil {
 		return
 	}
-	seg = segments.NewSequenceSegment(seq.current, digits, separator)
+	seg = segments.NewSequenceSegment(seq.Current, digits, separator)
 	return
 }
